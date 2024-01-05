@@ -1,11 +1,13 @@
-FROM danskernesdigitalebibliotek/php7.3-fpm-base AS APP_BUILDER
+FROM itkdev/php7.3-fpm:alpine AS APP_BUILDER
 LABEL maintainer="ITK Dev <itkdev@mkb.aarhus.dk>"
 
 ARG APP_VERSION="develop"
 ENV APP_PATH=/var/www/html
 
+USER root
+
 # Move site into the container.
-ADD https://github.com/danskernesdigitalebibliotek/ddb-follow-searches/archive/${APP_VERSION}.tar.gz /tmp/app.tar
+ADD https://github.com/aakbcms/ddb-follow-searches/archive/${APP_VERSION}.tar.gz /tmp/app.tar
 RUN tar -zxf /tmp/app.tar --strip-components=1 -C ${APP_PATH} \
     && rm /tmp/app.tar
 
@@ -21,10 +23,12 @@ RUN composer install --no-dev --no-ansi --no-interaction --no-progress --no-sugg
 ####
 ## Build main application image.
 ####
-FROM danskernesdigitalebibliotek/php7.3-fpm-base
+FROM itkdev/php7.3-fpm:alpine
 LABEL maintainer="ITK Dev <itkdev@mkb.aarhus.dk>"
 
 ENV APP_PATH=/var/www/html
+
+USER root
 
 # Install the application.
 COPY --from=APP_BUILDER ${APP_PATH} ${APP_PATH}
